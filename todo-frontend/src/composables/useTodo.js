@@ -1,73 +1,110 @@
-// src/composables/useTodo.js
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import { useToast } from "vue-toastification";
+import { ref } from "vue";
 import axiosInstance from "../utils/axiosInstance";
+import { useToast } from "vue-toastification";
+
+const todos = ref([]);
+const rawTodos = ref([]); // 👈 bản gốc chưa lọc
+const toast = useToast();
+
+const fetchTodos = async () => {
+  try {
+    const res = await axiosInstance.get("/todos");
+    rawTodos.value = res.data.data;
+    todos.value = [...rawTodos.value];
+  } catch (err) {
+    toast.error("Can not load the notes");
+    console.error(err);
+  }
+};
+
+const createTodo = async (data) => {
+  try {
+    const res = await axiosInstance.post("/todos", data);
+    rawTodos.value.push(res.data.data);
+    todos.value.push(res.data.data);
+    toast.success("Success!");
+  } catch (err) {
+    toast.error("Failed to add the note");
+    console.error(err);
+  }
+};
+
+const updateTodo = async (id, data) => {
+  try {
+    const res = await axiosInstance.put(`/todos/${id}`, data);
+    const updated = res.data.data;
+    const index = rawTodos.value.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      rawTodos.value[index] = updated;
+    }
+    searchAndFilterTodos(lastQuery); // 👈 filter lại sau khi update
+    toast.success("Update successfully");
+  } catch (err) {
+    toast.error("Failed to update the note");
+    console.error(err);
+  }
+};
+
+const deleteTodo = async (id) => {
+  try {
+    await axiosInstance.delete(`/todos/${id}`);
+    rawTodos.value = rawTodos.value.filter((t) => t.id !== id);
+    todos.value = todos.value.filter((t) => t.id !== id);
+    toast.success("Success");
+  } catch (err) {
+    toast.error("Failed to delete the note");
+    console.error(err);
+  }
+};
+
+const toggleDone = async (todo) => {
+  try {
+    const res = await axiosInstance.patch(`/todos/${todo.id}/toggle-done`);
+    const updated = res.data.data;
+    const index = rawTodos.value.findIndex((t) => t.id === todo.id);
+    if (index !== -1) rawTodos.value[index] = updated;
+    searchAndFilterTodos(lastQuery);
+  } catch (err) {
+    toast.error("Failed to toggle status");
+    console.error(err);
+  }
+};
+
+// Giữ filter lần gần nhất để apply lại sau update/toggle
+let lastQuery = { query: "", filter: "" };
+
+function searchAndFilterTodos({ query = "", filter = "" }) {
+  lastQuery = { query, filter }; // lưu lại
+  let filtered = [...rawTodos.value];
+
+  if (query) {
+    filtered = filtered.filter((todo) =>
+      todo.title.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  if (filter === "completed") {
+    filtered = filtered.filter((todo) => todo.is_done);
+  } else if (filter === "incompleted") {
+    filtered = filtered.filter((todo) => !todo.is_done);
+  } else if (filter === "due_today") {
+    const today = new Date().toISOString().split("T")[0];
+    filtered = filtered.filter((todo) => todo.end_date === today);
+  } else if (filter === "expired") {
+    const today = new Date().toISOString().split("T")[0];
+    filtered = filtered.filter(
+      (todo) => todo.end_date && todo.end_date < today && !todo.is_done
+    );
+  } else if (filter === "start_date") {
+    filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
+  } else if (filter === "end_date") {
+    filtered.sort((a, b) => new Date(b.end_date) - new Date(a.end_date));
+  }
+
+  todos.value = filtered;
+}
 
 export function useTodo() {
-  const todos = ref([]);
-  const toast = useToast();
-
-  const fetchTodos = async () => {
-    try {
-      const res = await axiosInstance.get("/todos");
-      todos.value = res.data.data;
-    } catch (err) {
-      toast.error("Can not load the notes");
-      console.error(err);
-    }
-  };
-
-  const createTodo = async (data) => {
-    try {
-      const res = await axiosInstance.post("/todos", data);
-      todos.value.push(res.data.data);
-      toast.success("Success!");
-    } catch (err) {
-      toast.error("Failed to add the note");
-      console.error(err);
-    }
-  };
-
-  const updateTodo = async (id, data) => {
-    try {
-      const res = await axiosInstance.put(`/todos/${id}`, data);
-      const index = todos.value.findIndex((t) => t.id === id);
-      if (index !== -1) todos.value[index] = res.data.data;
-      window.location.reload();
-      toast.success("Update successfully");
-      
-    } catch (err) {
-      toast.error("Failed to update the note");
-      console.error(err);
-    }
-  };
-
-  const deleteTodo = async (id) => {
-    try {
-      await axiosInstance.delete(`/todos/${id}`);
-      todos.value = todos.value.filter((t) => t.id !== id);
-      toast.success("Success");
-    } catch (err) {
-      toast.error("Failed to delete the note");
-      console.error(err);
-    }
-  };
-
-  const toggleDone = async (todo) => {
-    try {
-      const res = await axiosInstance.patch(`/todos/${todo.id}/toggle-done`);
-      const updated = res.data.data;
-      const index = todos.value.findIndex((t) => t.id === todo.id);
-      if (index !== -1) todos.value[index] = updated;
-    } catch (error) {
-      toast.error("Failed to toggle status");
-      console.error(err);
-    }
-  };
-
-  onMounted(fetchTodos);
-
   return {
     todos,
     fetchTodos,
@@ -75,5 +112,6 @@ export function useTodo() {
     updateTodo,
     deleteTodo,
     toggleDone,
+    searchAndFilterTodos,
   };
 }

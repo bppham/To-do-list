@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import AddNoteModel from "../components/AddNoteModel.vue";
 import Board from "../components/Board.vue";
 import FloatingAddButton from "../components/FloatingAddButton.vue";
@@ -9,7 +9,9 @@ const showModal = ref(false);
 const noteBeingEdited = ref(null);
 
 import { useTodo } from "../composables/useTodo";
-const { fetchTodos } = useTodo();
+const { todos, fetchTodos, searchAndFilterTodos } = useTodo();
+
+onMounted(fetchTodos);
 
 function handleSaved() {
   fetchTodos(); // Gọi lại API lấy danh sách todos mới
@@ -25,11 +27,15 @@ function openEditModal(note: any) {
   noteBeingEdited.value = note;
   showModal.value = true;
 }
+
+function handleFilter({ query, filter }) {
+  searchAndFilterTodos({ query, filter }); // hoặc filter local
+}
 </script>
 
 <template>
   <div class="p-4">
-    <SearchAndFilter />
+    <SearchAndFilter @filter="handleFilter" />
     <FloatingAddButton @open-modal="showModal = true" />
     <!-- Hiển thị danh sách todo ở đây -->
     <Board @edit-note="openEditModal" />
