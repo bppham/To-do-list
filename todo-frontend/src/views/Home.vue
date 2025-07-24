@@ -1,47 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import AddNoteModel from "../components/AddNoteModel.vue";
+import { useHome } from "../composables/ui/useHome";
 import Board from "../components/Board.vue";
 import FloatingAddButton from "../components/FloatingAddButton.vue";
 import SearchAndFilter from "../components/SearchAndFilter.vue";
+import NoteModel from "../components/NoteModel.vue";
 
-const showModal = ref(false);
-const noteBeingEdited = ref(null);
-
-import { useTodo } from "../composables/useTodo";
-const { todos, fetchTodos, searchAndFilterTodos } = useTodo();
-
-onMounted(fetchTodos);
-
-function handleSaved() {
-  fetchTodos(); // Gọi lại API lấy danh sách todos mới
-  showModal.value = false;
-}
-
-function openAddModal() {
-  noteBeingEdited.value = null;
-  showModal.value = true;
-}
-
-function openEditModal(note: any) {
-  noteBeingEdited.value = note;
-  showModal.value = true;
-}
-
-function handleFilter({ query, filter }) {
-  searchAndFilterTodos({ query, filter }); // hoặc filter local
-}
+const {
+  showModal,
+  noteBeingEdited,
+  viewOnly,
+  openAddModal,
+  openEditModal,
+  openViewModal,
+  handleSaved,
+  handleFilter,
+} = useHome();
 </script>
 
 <template>
   <div class="p-4">
     <SearchAndFilter @filter="handleFilter" />
-    <FloatingAddButton @open-modal="showModal = true" />
+    <FloatingAddButton @open-modal="openAddModal" />
     <!-- Hiển thị danh sách todo ở đây -->
-    <Board @edit-note="openEditModal" />
-    <AddNoteModel
+    <Board @edit-note="openEditModal" @view-note="openViewModal" />
+    <NoteModel
       :isOpen="showModal"
       :initialNote="noteBeingEdited"
+      :viewOnly="viewOnly"
       @close="showModal = false"
       @saved="handleSaved"
     />

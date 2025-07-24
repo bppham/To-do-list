@@ -1,3 +1,59 @@
+<script setup>
+import { reactive, ref, watch, onMounted } from "vue";
+import { useTodo } from "../composables/api/todoApi";
+import { useTag } from "../composables/ui/useTag";
+import { defineProps, defineEmits } from "vue";
+import { useNoteModel } from "../composables/ui/useNoteModel";
+
+const props = defineProps({
+  isOpen: Boolean,
+  initialNote: Object,
+  viewOnly: Boolean,
+});
+const emit = defineEmits(["close", "saved"]);
+
+const closeModal = () => emit("close");
+
+const {
+  form,
+  tags,
+  selectedTagIds,
+  toggleTag,
+  isSelected,
+  fetchTags,
+  submitNote,
+  resetForm,
+} = useNoteModel(() => props.initialNote);
+
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (!open) resetForm();
+  }
+);
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      fetchTags(); // ✅ chỉ gọi khi mở modal
+    } else {
+      resetForm();
+    }
+  }
+);
+
+// Gửi form
+async function submitForm() {
+  try {
+    await submitNote(props.initialNote?.id);
+    emit("saved");
+    closeModal();
+  } catch (error) {
+    console.error("Lỗi khi tạo/cập nhật note:", error);
+  }
+}
+</script>
+
 <template>
   <div
     v-if="isOpen"
@@ -28,6 +84,7 @@
               type="text"
               name="title"
               class="w-full rounded border px-3 py-2"
+              :disabled="viewOnly"
             />
           </div>
 
@@ -111,7 +168,7 @@
           </div>
         </div>
 
-        <div class="mt-6 flex justify-end">
+        <div class="mt-6 flex justify-end" v-if="!viewOnly">
           <button
             type="submit"
             class="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
@@ -123,89 +180,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { reactive, ref, watch, onMounted } from "vue";
-import { useTodo } from "../composables/useTodo";
-import { useTag } from "../composables/useTag";
-import { defineProps, defineEmits } from "vue";
-
-const props = defineProps({
-  isOpen: Boolean,
-  initialNote: Object,
-});
-const emit = defineEmits(["close"]);
-
-const closeModal = () => emit("close");
-
-const { createTodo, updateTodo } = useTodo();
-const { tags, fetchTags } = useTag();
-onMounted(fetchTags);
-
-// Tag logic
-const selectedTagIds = ref([]);
-function toggleTag(tagId) {
-  const index = selectedTagIds.value.indexOf(tagId);
-  index === -1
-    ? selectedTagIds.value.push(tagId)
-    : selectedTagIds.value.splice(index, 1);
-}
-function isSelected(tagId) {
-  return selectedTagIds.value.includes(tagId);
-}
-
-// Form data
-const form = reactive({
-  title: "",
-  description: "",
-  repeat: "none",
-  startDate: "",
-  endDate: "",
-});
-
-watch(
-  () => props.initialNote,
-  (newNote) => {
-    if (newNote) {
-      form.title = newNote.title;
-      form.description = newNote.description;
-      form.repeat = newNote.repeat;
-      form.startDate = newNote.start_date;
-      form.endDate = newNote.end_date;
-      selectedTagIds.value = newNote.tags?.map((tag) => tag.id) || [];
-    } else {
-      form.title = "";
-      form.description = "";
-      form.repeat = "none";
-      form.startDate = "";
-      form.endDate = "";
-      selectedTagIds.value = [];
-    }
-  },
-  { immediate: true }
-);
-
-// Submit
-async function submitForm() {
-  try {
-    const payload = {
-      title: form.title,
-      description: form.description,
-      repeat: form.repeat,
-      start_date: form.startDate,
-      end_date: form.endDate,
-      tag_ids: selectedTagIds.value,
-    };
-
-    if (props.initialNote?.id) {
-      await updateTodo(props.initialNote.id, payload);
-    } else {
-      await createTodo(payload);
-    }
-    emit("saved");
-    closeModal();
-  } catch (error) {
-    console.error("Lỗi khi tạo/cập nhật note:", error);
-  }
-}
-</script>

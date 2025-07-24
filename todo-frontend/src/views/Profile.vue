@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from "vue";
-import { useProfile } from "../composables/useProfile";
+import { useProfile } from "../composables/ui/useProfile";
 
 const { user, noteStats, fetchProfile } = useProfile();
 

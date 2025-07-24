@@ -14,6 +14,7 @@
     <p
       :class="{ 'line-through text-gray-500': todo?.is_done }"
       class="pr-6 font-medium break-words text-yellow-900"
+      @click="$emit('view')"
     >
       {{ todo?.title }}
     </p>

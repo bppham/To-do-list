@@ -1,3 +1,5 @@
+<script setup></script>
+
 <template>
   <div class="mx-auto mt-20 max-w-md rounded p-6 shadow-md">
     <form class="mx-auto max-w-md">
@@ -76,5 +78,3 @@
     </form>
   </div>
 </template>
-
-<script setup></script>

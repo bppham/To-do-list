@@ -1,14 +1,14 @@
 import { ref } from "vue";
-import axiosInstance from "../utils/axiosInstance";
+import { axiosAuth } from "../../utils/axios/axiosInstance";
 import { useToast } from "vue-toastification";
 
 const todos = ref([]);
 const rawTodos = ref([]); // 👈 bản gốc chưa lọc
 const toast = useToast();
 
-const fetchTodos = async () => {
+const getTodos = async () => {
   try {
-    const res = await axiosInstance.get("/todos");
+    const res = await axiosAuth.get("/todos");
     rawTodos.value = res.data.data;
     todos.value = [...rawTodos.value];
   } catch (err) {
@@ -19,7 +19,7 @@ const fetchTodos = async () => {
 
 const createTodo = async (data) => {
   try {
-    const res = await axiosInstance.post("/todos", data);
+    const res = await axiosAuth.post("/todos", data);
     rawTodos.value.push(res.data.data);
     todos.value.push(res.data.data);
     toast.success("Success!");
@@ -31,7 +31,7 @@ const createTodo = async (data) => {
 
 const updateTodo = async (id, data) => {
   try {
-    const res = await axiosInstance.put(`/todos/${id}`, data);
+    const res = await axiosAuth.put(`/todos/${id}`, data);
     const updated = res.data.data;
     const index = rawTodos.value.findIndex((t) => t.id === id);
     if (index !== -1) {
@@ -47,7 +47,7 @@ const updateTodo = async (id, data) => {
 
 const deleteTodo = async (id) => {
   try {
-    await axiosInstance.delete(`/todos/${id}`);
+    await axiosAuth.delete(`/todos/${id}`);
     rawTodos.value = rawTodos.value.filter((t) => t.id !== id);
     todos.value = todos.value.filter((t) => t.id !== id);
     toast.success("Success");
@@ -59,7 +59,7 @@ const deleteTodo = async (id) => {
 
 const toggleDone = async (todo) => {
   try {
-    const res = await axiosInstance.patch(`/todos/${todo.id}/toggle-done`);
+    const res = await axiosAuth.patch(`/todos/${todo.id}/toggle-done`);
     const updated = res.data.data;
     const index = rawTodos.value.findIndex((t) => t.id === todo.id);
     if (index !== -1) rawTodos.value[index] = updated;
@@ -107,7 +107,7 @@ function searchAndFilterTodos({ query = "", filter = "" }) {
 export function useTodo() {
   return {
     todos,
-    fetchTodos,
+    getTodos,
     createTodo,
     updateTodo,
     deleteTodo,

@@ -1,3 +1,7 @@
+<script setup>
+import { useLogin } from "../composables/ui/useLogin";
+const { email, password, login } = useLogin();
+</script>
 <template>
   <div class="mx-auto mt-20 max-w-md rounded p-6 shadow-md">
     <form
@@ -69,8 +73,3 @@
     </form>
   </div>
 </template>
-
-<script setup>
-import { useAuth } from '../composables/useAuth'; 
-const { email, password, login } = useAuth();
-</script>
