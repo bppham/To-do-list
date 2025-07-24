@@ -16,7 +16,7 @@ export function useProfile() {
     try {
       const data = await getProfile();
       user.value = data.user;
-      noteStats.value = data.stats;
+      noteStats.value = data.statistics;
     } catch (err) {
       toast.error("Failed to load profile info");
       console.error(err);

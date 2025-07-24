@@ -1,6 +1,8 @@
-import {axiosPublic} from "../../utils/axios/axiosInstance";
+import { axiosPublic } from "../../utils/axios/axiosInstance";
 
-export async function getTags() {
+const getTags = async () => {
   const response = await axiosPublic.get("/tags");
   return response.data.data || [];
-}
+};
+
+export { getTags };

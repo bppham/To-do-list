@@ -36,7 +36,7 @@ const { email, password, login } = useLogin();
           type="password"
           id="password"
           class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-          placeholder="name@flowbite.com"
+          placeholder="name@example.com"
           required
         />
       </div>
@@ -59,7 +59,7 @@ const { email, password, login } = useLogin();
         </div>
         <a
           class="ms-2 text-sm font-medium text-blue-700 italic hover:underline"
-          href=""
+          href="auth/register"
           >Don't have account</a
         >
       </div>

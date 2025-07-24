@@ -25,7 +25,7 @@ console.log("User ", user.value);
       <h3 class="text-xl font-semibold text-gray-700 mb-2">
         📊 Note Statistics
       </h3>
-      <!-- <ul class="space-y-2">
+      <ul class="space-y-2">
         <li>✅ <strong>Total Notes:</strong> {{ noteStats.total_notes }}</li>
         <li>
           ⏳ <strong>Completed Notes:</strong>
@@ -39,7 +39,7 @@ console.log("User ", user.value);
           ⌛ <strong>Expired Notes:</strong>
           {{ noteStats.expired_notes }}
         </li>
-      </ul> -->
+      </ul>
     </div>
   </div>
 </template>
