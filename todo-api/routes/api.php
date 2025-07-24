@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TodoController;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/todos/{id}', [TodoController::class, 'update']);
     Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
     Route::patch('/todos/{id}/toggle-done', [TodoController::class, 'toggleIsDone']);
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'me']);
 });

@@ -36,7 +36,9 @@ onBeforeUnmount(() => {
   >
     <!-- Logo bên trái -->
     <div class="flex items-center space-x-2">
-      <span class="text-xl font-bold">MyApp</span>
+      <a href="/">
+        <span class="text-xl font-bold">MyApp</span>
+      </a>
     </div>
 
     <!-- Avatar và Dropdown -->
@@ -52,7 +54,9 @@ onBeforeUnmount(() => {
         class="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-10"
       >
         <ul class="py-2 text-sm text-gray-700">
-          <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+          <a href="/profile">
+            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+          </a>
           <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
         </ul>
       </div>

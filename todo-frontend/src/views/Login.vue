@@ -71,6 +71,6 @@
 </template>
 
 <script setup>
-import { useAuth } from '../../composables/useAuth'; 
+import { useAuth } from '../composables/useAuth'; 
 const { email, password, login } = useAuth();
 </script>
