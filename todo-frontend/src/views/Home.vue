@@ -24,6 +24,7 @@ const {
     <!-- Hiển thị danh sách todo ở đây -->
     <Board @edit-note="openEditModal" @view-note="openViewModal" />
     <NoteModel
+      :key="noteBeingEdited?.id + '-' + viewOnly"
       :isOpen="showModal"
       :initialNote="noteBeingEdited"
       :viewOnly="viewOnly"
