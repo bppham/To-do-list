@@ -96,6 +96,7 @@ async function submitForm() {
               v-model="form.repeat"
               name="discountType"
               class="w-full rounded border px-3 py-2"
+              :disabled="viewOnly"
             >
               <option value="none">None</option>
               <option value="everyday">Everyday</option>
@@ -161,7 +162,7 @@ async function submitForm() {
                   ? { backgroundColor: tag.color, borderColor: tag.color }
                   : { color: tag.color, borderColor: tag.color }
               "
-              @click="toggleTag(tag.id)"
+              @click="!viewOnly && toggleTag(tag.id)"
             >
               {{ tag.name }}
             </div>

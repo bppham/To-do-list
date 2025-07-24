@@ -46,6 +46,14 @@ export function useNoteModel(intialNote) {
     return selectedTagIds.value.includes(tagId);
   }
 
+  function toggleTag(tagId) {
+    if (selectedTagIds.value.includes(tagId)) {
+      selectedTagIds.value = selectedTagIds.value.filter((id) => id !== tagId);
+    } else {
+      selectedTagIds.value.push(tagId);
+    }
+  }
+
   async function submitNote(id = null) {
     const payload = {
       title: form.title,
@@ -69,6 +77,7 @@ export function useNoteModel(intialNote) {
     selectedTagIds,
     isSelected,
     fetchTags,
+    toggleTag,
     submitNote,
     resetForm,
   };
