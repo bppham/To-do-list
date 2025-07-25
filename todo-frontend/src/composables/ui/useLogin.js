@@ -1,20 +1,33 @@
 import { ref } from "vue";
+import { useAuthStore } from "../../stores/authStore";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
-import { loginApi } from "../api/authApi";
 export function useLogin() {
   const email = ref("");
   const password = ref("");
-  const toast = useToast();
   const router = useRouter();
+  const toast = useToast();
+  const authStore = useAuthStore();
 
   const login = async () => {
     try {
-      const token = await loginApi(email.value, password.value);
-      localStorage.setItem("token", token);
-      await router.push("/");
+      await authStore.login(email.value, password.value);
+      toast.success("Đăng nhập thành công!");
+      router.push("/");
     } catch (error) {
-      toast.error("Email or password incorrect");
+      if (error.response && error.response.data) {
+        const res = error.response.data;
+
+        if (res.errors) {
+          Object.values(res.errors).forEach((messages) => {
+            messages.forEach((msg) => toast.error(msg));
+          });
+        } else {
+          toast.error(res.message || "Đăng nhập thất bại!");
+        }
+      } else {
+        toast.error("Lỗi kết nối đến máy chủ!");
+      }
     }
   };
   return { email, password, login };

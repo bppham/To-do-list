@@ -59,7 +59,7 @@ const { email, password, login } = useLogin();
         </div>
         <a
           class="ms-2 text-sm font-medium text-blue-700 italic hover:underline"
-          href="auth/register"
+          href="/auth/register"
           >Don't have account</a
         >
       </div>

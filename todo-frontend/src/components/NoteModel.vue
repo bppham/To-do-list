@@ -1,9 +1,8 @@
 <script setup>
-import { reactive, ref, watch, onMounted } from "vue";
-import { useTodo } from "../composables/api/todoApi";
-import { useTag } from "../composables/ui/useTag";
+import { reactive, ref, watch } from "vue";
 import { defineProps, defineEmits } from "vue";
-import { useNoteModel } from "../composables/ui/useNoteModel";
+import { useTag } from "../composables/ui/useTag";
+import { useTodoStore } from "../stores/todoStore";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -12,40 +11,92 @@ const props = defineProps({
 });
 const emit = defineEmits(["close", "saved"]);
 
-const closeModal = () => emit("close");
+const todoStore = useTodoStore();
+const { tags, fetchTags } = useTag();
 
-const {
-  form,
-  tags,
-  selectedTagIds,
-  toggleTag,
-  isSelected,
-  fetchTags,
-  submitNote,
-  resetForm,
-} = useNoteModel(() => props.initialNote);
+const selectedTagIds = ref([]);
 
-watch(
-  () => props.isOpen,
-  (open) => {
-    if (!open) resetForm();
-  }
-);
+const form = reactive({
+  title: "",
+  description: "",
+  repeat: "none",
+  startDate: "",
+  endDate: "",
+});
+
+const resetForm = () => {
+  form.title = "";
+  form.description = "";
+  form.repeat = "none";
+  form.startDate = "";
+  form.endDate = "";
+  selectedTagIds.value = [];
+};
+
+const syncFormFromNote = (note) => {
+  if (!note) return;
+  form.title = note.title || "";
+  form.description = note.description || "";
+  form.repeat = note.repeat || "none";
+  form.startDate = note.start_date || "";
+  form.endDate = note.end_date || "";
+  const tagIds = note.tags?.map(tag => tag.id) || [];
+  selectedTagIds.value.splice(0, selectedTagIds.value.length, ...tagIds);
+};
+
+// Khi mở modal => fetch tag + đồng bộ dữ liệu
 watch(
   () => props.isOpen,
   (open) => {
     if (open) {
-      fetchTags(); // ✅ chỉ gọi khi mở modal
+      fetchTags();
+      syncFormFromNote(props.initialNote);
     } else {
       resetForm();
     }
   }
 );
 
-// Gửi form
+// Đồng bộ lại nếu initialNote thay đổi trong khi modal đang mở
+watch(
+  () => props.initialNote,
+  (note) => {
+    console.log(">>> [NoteModel] props.initialNote thay đổi:", note);
+    if (props.isOpen && note) {
+      syncFormFromNote(note);
+    }
+  }
+);
+
+const toggleTag = (id) => {
+  const index = selectedTagIds.value.indexOf(id);
+  if (index === -1) {
+    selectedTagIds.value.push(id);
+  } else {
+    selectedTagIds.value.splice(index, 1);
+  }
+};
+
+const isSelected = (id) => selectedTagIds.value.includes(id);
+
+const closeModal = () => emit("close");
+
 async function submitForm() {
+  const payload = {
+    title: form.title,
+    description: form.description,
+    repeat: form.repeat,
+    start_date: form.startDate,
+    end_date: form.endDate,
+    tag_ids: selectedTagIds.value,
+  };
+
   try {
-    await submitNote(props.initialNote?.id);
+    if (props.initialNote?.id) {
+      await todoStore.editTodo(props.initialNote.id, payload);
+    } else {
+      await todoStore.addTodo(payload);
+    }
     emit("saved");
     closeModal();
   } catch (error) {
@@ -74,7 +125,6 @@ async function submitForm() {
         </button>
       </div>
 
-      <!-- FORM Y NHƯ CŨ -->
       <form @submit.prevent="submitForm">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
@@ -94,7 +144,6 @@ async function submitForm() {
             >
             <select
               v-model="form.repeat"
-              name="discountType"
               class="w-full rounded border px-3 py-2"
               :disabled="viewOnly"
             >
@@ -129,7 +178,6 @@ async function submitForm() {
             <input
               v-model="form.startDate"
               type="date"
-              name="startDate"
               class="w-full rounded border px-3 py-2"
             />
           </div>
@@ -141,7 +189,6 @@ async function submitForm() {
             <input
               v-model="form.endDate"
               type="date"
-              name="endDate"
               class="w-full rounded border px-3 py-2"
             />
           </div>

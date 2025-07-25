@@ -24,7 +24,7 @@ class UpdationRequest extends FormRequest
         return [
             'title'       => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
-            'start_date'  => 'sometimes|nullable|date|after_or_equal:today',
+            'start_date'  => 'sometimes|nullable|date',
             'end_date'    => 'sometimes|nullable|date|after_or_equal:start_date',
             'repeat'      => 'sometimes|nullable|in:none,everyday,monday,tuesday,wednesday,thursday,friday,saturday,sunday',
         ];
