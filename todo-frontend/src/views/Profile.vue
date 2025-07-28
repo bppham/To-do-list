@@ -1,13 +1,15 @@
 <script setup>
-import { onMounted } from "vue";
-import { useProfile } from "../composables/ui/useProfile";
-
-const { user, noteStats, fetchProfile } = useProfile();
+import { computed, onMounted } from "vue";
+import { useAuthStore } from "../stores/authStore";
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
+const statistics = computed(() => authStore.statistics);
 
 onMounted(() => {
-  fetchProfile();
+  if (!user.value) {
+    authStore.fetchMe();
+  }
 });
-console.log("User ", user.value);
 </script>
 
 <template>
@@ -26,18 +28,18 @@ console.log("User ", user.value);
         📊 Note Statistics
       </h3>
       <ul class="space-y-2">
-        <li>✅ <strong>Total Notes:</strong> {{ noteStats.total_notes }}</li>
+        <li>✅ <strong>Total Notes:</strong> {{ statistics.total_notes }}</li>
         <li>
           ⏳ <strong>Completed Notes:</strong>
-          {{ noteStats.completed_notes }}
+          {{ statistics.completed_notes }}
         </li>
         <li>
           🔧 <strong>Incompleted Notes:</strong>
-          {{ noteStats.incompleted_notes }}
+          {{ statistics.incompleted_notes }}
         </li>
         <li>
           ⌛ <strong>Expired Notes:</strong>
-          {{ noteStats.expired_notes }}
+          {{ statistics.expired_notes }}
         </li>
       </ul>
     </div>

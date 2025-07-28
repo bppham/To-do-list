@@ -1,5 +1,10 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useAuthStore } from "../stores/authStore";
+import { useRouter } from "vue-router";
+
+const authStore = useAuthStore();
+const router = useRouter();
 
 const showDropdown = ref(false);
 
@@ -28,6 +33,11 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push("/auth/login");
+};
 </script>
 
 <template>
@@ -57,7 +67,12 @@ onBeforeUnmount(() => {
           <a href="/profile">
             <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
           </a>
-          <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
+          <li
+            @click="handleLogout"
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          >
+            Logout
+          </li>
         </ul>
       </div>
     </div>

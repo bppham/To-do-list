@@ -1,29 +1,25 @@
 import { defineStore } from "pinia";
-// import { loginApi, registerApi } from "../composables/api/authApi";
 import { useToast } from "vue-toastification";
-import { login, register } from "../services/authService";
-// import { useRouter } from "vue-router";
+import { login, me, register } from "../services/authService";
 import router from "../router/index";
 const toast = useToast();
-// const router = useRouter();
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     token: localStorage.getItem("token") || null,
     user: null,
+    statistics: null,
   }),
   actions: {
     async login(data) {
       try {
         const res = await login(data);
-        console.log("Response login: ", res.data.data);
         this.token = res.data.data.token;
         localStorage.setItem("token", this.token);
         toast.success("Login successfully");
+
         router.push("/");
       } catch (error) {
-        console.log("Error login: ", error);
-
         // Nếu là lỗi 422 validation từ Laravel
         if (error.response && error.response.status === 422) {
           const errors = error.response.data.errors;
@@ -36,7 +32,7 @@ export const useAuthStore = defineStore("auth", {
         // Nếu là lỗi sai thông tin đăng nhập
         else if (error.response && error.response.status === 400) {
           console.log(error.response);
-          toast.error(error.response.data.errors|| "Invalid credentials");
+          toast.error(error.response.data.errors || "Invalid credentials");
         }
         // Lỗi khác (mất kết nối, lỗi server...)
         else {
@@ -45,10 +41,25 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
+    async fetchMe() {
+      if (!this.token) return;
+
+      try {
+        const res = await me();
+        if (res?.data?.data) {
+          this.user = res.data.data.user;
+          this.statistics = res.data.data.statistics;
+          console.log("Fetched user:", this.user);
+          console.log("Fetched stats:", this.statistics);
+        }
+      } catch (error) {
+        toast.error("Không thể lấy thông tin người dùng");
+        console.error("Lỗi fetchMe:", error);
+      }
+    },
     async register(data) {
       try {
         const res = await register(data);
-        console.log("Register response: ", res);
         if (res.data.success === true) {
           toast.success("Registered new account successfully");
           router.push("/auth/login");
@@ -72,6 +83,7 @@ export const useAuthStore = defineStore("auth", {
 
     logout() {
       this.token = null;
+      this.user = null;
       localStorage.removeItem("token");
     },
   },
