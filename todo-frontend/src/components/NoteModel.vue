@@ -1,7 +1,7 @@
 <script setup>
-import { reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { defineProps, defineEmits } from "vue";
-import { useTag } from "../composables/ui/useTag";
+import { useTagStore } from "../stores/tagStore";
 import { useTodoStore } from "../stores/todoStore";
 
 const props = defineProps({
@@ -12,8 +12,9 @@ const props = defineProps({
 const emit = defineEmits(["close", "saved"]);
 
 const todoStore = useTodoStore();
-const { tags, fetchTags } = useTag();
-
+const tagStore = useTagStore();
+const { fetchTags } = tagStore;
+const tags = computed(() => tagStore.tags);
 const selectedTagIds = ref([]);
 
 const form = reactive({
@@ -40,7 +41,7 @@ const syncFormFromNote = (note) => {
   form.repeat = note.repeat || "none";
   form.startDate = note.start_date || "";
   form.endDate = note.end_date || "";
-  const tagIds = note.tags?.map(tag => tag.id) || [];
+  const tagIds = note.tags?.map((tag) => tag.id) || [];
   selectedTagIds.value.splice(0, selectedTagIds.value.length, ...tagIds);
 };
 

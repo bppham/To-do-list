@@ -43,9 +43,9 @@ router.beforeEach((to, from, next) => {
   }
 
   // Nếu đã đăng nhập mà cố vào /auth/...
-  if (isLoggedIn && isAuthRoute) {
-    return next("/");
-  }
+  // if (isLoggedIn && isAuthRoute) {
+  //   return next("/");
+  // }
 
   next(); // Cho đi tiếp
 });

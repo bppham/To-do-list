@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, ref } from "vue";
 import { useAuthStore } from "../stores/authStore";
-import { useRouter } from "vue-router";
 
 const form = reactive({
   email: "",
@@ -55,9 +54,9 @@ const login = async () => {
           required
         />
       </div>
-      <div class="flex justify-between">
+      <div class="flex justify-between mb-6">
         <div class="mb-5 flex items-start">
-          <div class="flex h-5 items-center">
+          <!-- <div class="flex h-5 items-center">
             <input
               id="remember"
               type="checkbox"
@@ -70,7 +69,7 @@ const login = async () => {
             for="remember"
             class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >Remember me</label
-          >
+          > -->
         </div>
         <a
           class="ms-2 text-sm font-medium text-blue-700 italic hover:underline"

@@ -5,7 +5,7 @@ export const login = async (data) => {
   return response;
 };
 
-export const register = async () => {
-  const response = await axiosPublic.post("/register");
+export const register = async (data) => {
+  const response = await axiosPublic.post("/register", data);
   return response;
 };

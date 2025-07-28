@@ -19,18 +19,55 @@ export const useAuthStore = defineStore("auth", {
         console.log("Response login: ", res.data.data);
         this.token = res.data.data.token;
         localStorage.setItem("token", this.token);
+        toast.success("Login successfully");
         router.push("/");
       } catch (error) {
         console.log("Error login: ", error);
-        toast.error("Can not load the note by id");
+
+        // Nếu là lỗi 422 validation từ Laravel
+        if (error.response && error.response.status === 422) {
+          const errors = error.response.data.errors;
+          for (const field in errors) {
+            errors[field].forEach((msg) => {
+              toast.error(msg);
+            });
+          }
+        }
+        // Nếu là lỗi sai thông tin đăng nhập
+        else if (error.response && error.response.status === 400) {
+          console.log(error.response);
+          toast.error(error.response.data.errors|| "Invalid credentials");
+        }
+        // Lỗi khác (mất kết nối, lỗi server...)
+        else {
+          toast.error("Something went wrong!");
+        }
       }
-      // const token = await loginApi(email, password);
-      // this.token = token;
-      // localStorage.setItem("token", token);
     },
 
-    async register(name, email, password, password_confirmation) {
-      await register(name, email, password, password_confirmation);
+    async register(data) {
+      try {
+        const res = await register(data);
+        console.log("Register response: ", res);
+        if (res.data.success === true) {
+          toast.success("Registered new account successfully");
+          router.push("/auth/login");
+        }
+      } catch (error) {
+        console.log("Register Error:", error);
+
+        // Nếu là lỗi 422 và có error response
+        if (error.response && error.response.status === 422) {
+          const errors = error.response.data.errors;
+          for (const field in errors) {
+            errors[field].forEach((msg) => {
+              toast.error(msg);
+            });
+          }
+        } else {
+          toast.error("Something went wrong!");
+        }
+      }
     },
 
     logout() {
