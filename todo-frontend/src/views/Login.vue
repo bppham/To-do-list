@@ -1,6 +1,21 @@
 <script setup>
-import { useLogin } from "../composables/ui/useLogin";
-const { email, password, login } = useLogin();
+import { reactive, ref } from "vue";
+import { useAuthStore } from "../stores/authStore";
+import { useRouter } from "vue-router";
+
+const form = reactive({
+  email: "",
+  password: "",
+});
+const authStore = useAuthStore();
+
+const login = async () => {
+  try {
+    await authStore.login({ ...form });
+  } catch (error) {
+    console.log("Error login from login.vue: ", error);
+  }
+};
 </script>
 <template>
   <div class="mx-auto mt-20 max-w-md rounded p-6 shadow-md">
@@ -17,7 +32,7 @@ const { email, password, login } = useLogin();
           >Your email</label
         >
         <input
-          v-model="email"
+          v-model="form.email"
           type="email"
           id="email"
           class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
@@ -32,7 +47,7 @@ const { email, password, login } = useLogin();
           >Your password</label
         >
         <input
-          v-model="password"
+          v-model="form.password"
           type="password"
           id="password"
           class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
