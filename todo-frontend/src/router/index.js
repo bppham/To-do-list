@@ -4,6 +4,7 @@ import RegisterPage from "../views/Register.vue";
 import DefaultLayout from "../layout/DefaultLayout.vue";
 import HomePage from "../views/Home.vue";
 import ProfilePage from "../views/Profile.vue";
+import NotFoundPage from "../components/NoteFound.vue";
 import { useAuthStore } from "../stores/authStore";
 const routes = [
   { path: "/auth/login", name: "Loign", component: LoginPage },
@@ -21,6 +22,11 @@ const routes = [
         path: "/profile",
         name: "Profile",
         component: ProfilePage,
+      },
+      {
+        path: ":pathMatch(.*)*",
+        name: "NotFound",
+        component: NotFoundPage,
       },
     ],
   },

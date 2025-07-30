@@ -1,7 +1,8 @@
 // src/utils/axiosFactory.js
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api";
+// const API_URL = "http://localhost:8000/api";
+const API_URL = "http://192.168.80.136:8000/api";
 
 /**
  * Factory tạo ra instance axios tùy có token hay không.

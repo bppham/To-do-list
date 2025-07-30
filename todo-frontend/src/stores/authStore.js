@@ -36,7 +36,33 @@ export const useAuthStore = defineStore("auth", {
         }
         // Lỗi khác (mất kết nối, lỗi server...)
         else {
-          toast.error("Something went wrong!");
+          let msg = "";
+
+          // Ưu tiên in lỗi từ server trả về
+          if (error.response) {
+            msg += `[Status ${error.response.status}] `;
+            if (typeof error.response.data === "string") {
+              msg += error.response.data;
+            } else if (error.response.data?.message) {
+              msg += error.response.data.message;
+            } else {
+              msg += JSON.stringify(error.response.data);
+            }
+          }
+          // Nếu không có response từ server (timeout, offline, etc.)
+          else if (error.request) {
+            msg = "No response received. Please check your network or server." + error.request;
+          }
+          // Nếu lỗi là do config hoặc logic
+          else {
+            msg = error.message || "Something went wrong!";
+          }
+
+          // In ra lỗi nguyên bản (debug nâng cao nếu cần)
+          console.error("Full error:", error);
+
+          // Show lỗi lên toast
+          toast.error(msg);
         }
       }
     },
